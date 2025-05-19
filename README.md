@@ -243,3 +243,27 @@ It means:
 
 * ✅ Insert a new row if it doesn’t exist, but </br>
 * 🔁 Update the existing row if it does (based on conflict).
+
+```sql
+INSERT INTO table_name (column1, column2, ...)
+VALUES (value1, value2, ...)
+ON CONFLICT (conflict_column)
+DO UPDATE SET
+    column1 = EXCLUDED.column1,
+    column2 = EXCLUDED.column2,
+    column3 = 'custom_value'
+RETURNING *;
+```
+
+Example:
+
+```sql
+INSERT INTO users (email, username, active)
+VALUES ('phantom@duck.com', 'phantomX', FALSE)
+ON CONFLICT (email)
+DO UPDATE SET
+    username = EXCLUDED.username,
+    active = EXCLUDED.active,
+    updated_at = CURRENT_TIMESTAMP
+RETURNING *;
+```
