@@ -69,13 +69,13 @@ INSERT INTO order_items (order_id, product_name, category_id, quantity, price) V
 ```
 
 **Returning clause**
-This is a statement that can be added at the end of any statemnt related to *insert*, *update*, and *delete*
+This is a statement that can be added at the end of any statemnt related to *insert*, *update*, and *delete*. It is inserted at the end of the sql statment followed by columns you wish(* for the whole row).
 
 ```sql
     -- for returning the whole row
-    .returning *
+    statement returning *
     --for returning specific columns in that row
-    .returning column1,column2,...
+    returning column1,column2,...
 ```
 
 ## 1. Insert
@@ -173,7 +173,16 @@ WHERE username = 'jane'.RETURNING *;
 UPDATE users
 SET email = 'jane_updated@gmail.com',
 active = FALSE
-WHERE username = 'jane'.RETURNING email,username;
+WHERE username = 'jane' RETURNING email,username;
+```
+
+* ### update the whole column
+  
+  will update the whole column for price, increase it by 10% on each product
+
+```sql
+UPDATE products
+SET price = price * 1.10;
 ```
 
 * ### update depending on another table
@@ -189,3 +198,48 @@ RETURNING oi.product_name, oi.price;
 
 ## 3. DELETE
 
+Delete is used when you want to delete one or more rows.
+
+* ### delete one row
+  
+``` sql
+DELETE FROM users
+WHERE user_id = 5;
+```
+
+* ### delete multiple rows match condition
+  
+```sql
+DELETE FROM users
+WHERE active = FALSE;
+  ```
+
+* ### delete using join (using keyword)
+
+delete orders where user not active
+  
+```sql
+DELETE FROM orders o
+USING users u
+WHERE o.user_id = u.user_id
+  AND u.active = FALSE;
+```
+
+* ### returning clause (delete version)
+  
+```sql
+--whole row
+DELETE FROM users
+WHERE active = FALSE RETURNING *;
+--specific columne
+DELETE FROM users
+WHERE active = FALSE RETURNING email,username;
+  ```
+
+## 4. UPSERT
+
+UPSERT = Insert + Update
+It means:
+
+* ✅ Insert a new row if it doesn’t exist, but </br>
+* 🔁 Update the existing row if it does (based on conflict).
