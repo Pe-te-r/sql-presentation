@@ -9,7 +9,7 @@ For you to follow along you need to create this tables in your database.
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
-    active BOOLEAN() DEFAULT TRUE
+    active BOOLEAN DEFAULT TRUE,
     email VARCHAR(100) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,11 +42,11 @@ Insert basic dummy data for working with
 ```sql
 -- INSERT USERS
 INSERT INTO users (username, email, active) VALUES
-    ('alex', 'alex@gmail.com', TRUE),
-    ('kevin', 'kevin@duck.com', FALSE),
-    ('phantom', 'phantom8526@duck.com', TRUE),
-    ('shakirah', 'shakirah@duck.com', TRUE);
-    ('jane', 'jane@gmail.com', TRUE),
+    ('shakirah', 'shakirah@duck.com', False),
+    ('alex', 'alex@gmail.com', True),
+    ('jane', 'jane@gmail.com', True),
+    ('phantom', 'phantom8526@duck.com', True),
+    ('kevin', 'kevin@duck.com', False);
 
 -- INSERT CATEGORIES
 INSERT INTO categories (name, discount_percent) VALUES
@@ -58,7 +58,8 @@ INSERT INTO categories (name, discount_percent) VALUES
 INSERT INTO orders (user_id, status) VALUES
     (1, 'pending'),
     (2, 'shipped'),
-    (3, 'pending');
+    (3, 'pending'),
+    (5, 'pending'); -- make sure one of the users has active False
 
 -- INSERT ORDER ITEMS
 INSERT INTO order_items (order_id, product_name, category_id, quantity, price) VALUES
@@ -100,9 +101,9 @@ Insert is used to add rows to a table. Can be used for adding single or multiple
 In this only one row is inserted.
 
 ```sql
- INSERT INTO users 
- SET(username,email)
- VALUES ("phantom","phantom8526@duck.com")
+ INSERT INTO users (username,email,active)
+ VALUES ('maina','maina@duck.com',False);
+
 ```
 
 * ### Multiple row
@@ -110,11 +111,10 @@ In this only one row is inserted.
 Multiple rows get inserted within one query.
 
 ```sql
- INSERT INTO users 
- SET(username,email)
- VALUES ("phantom","phantom8526@duck.com"),
- ("jane","Jane@gmail.com"),
- ("alex","alex@gmail.com")
+ INSERT INTO users (username,email,active)
+ VALUES ('sharon','sharon@duck.com',True),
+ ('joy','joy@gmail.com',True),
+ ('ken','ken@gmail.com',False);
 ```
 
 * ### Returning clause(Insert Version)
@@ -123,13 +123,11 @@ Addin returning clause at the end then specify which columns in the inserted row
 
 ```sql
 --the whole row
- INSERT INTO users 
-    SET(username,email)
-    VALUES ("kevin","kevin@duck.com").RETURNING *
+ INSERT INTO users(username,email)
+    VALUES ('antony','antony@duck.com') RETURNING *;
  --the specific column
-  INSERT INTO users 
-    SET(username,email)
-    VALUES ("shakirah","shakirah@duck.com").RETURNING email,username
+  INSERT INTO users (username,email)
+    VALUES ('serah','serah@duck.com')RETURNING email,username;
 ```
 
 ## 2. Update
@@ -162,9 +160,9 @@ Update multiple columns in a row.
   
 ```sql
 UPDATE users
-SET email = 'jane_updated@gmail.com',
+SET email = 'serah_updated@gmail.com',
     active = FALSE
-WHERE username = 'jane';
+WHERE username = 'serah';
 ```
 
 * ### Returning clause(update version)
@@ -174,14 +172,13 @@ Used to return columns updates within a row. It can be the whole row or specifie
 ```sql
 --the whole row
 UPDATE users
-SET email = 'jane_updated@gmail.com',
-    active = FALSE
-WHERE username = 'jane'.RETURNING *;
+SET active = False
+WHERE username = 'sharon' RETURNING *;
 --specific row
 UPDATE users
-SET email = 'jane_updated@gmail.com',
+SET email = 'peter34@gmail.com',
 active = FALSE
-WHERE username = 'jane' RETURNING email,username;
+WHERE username = 'phantom' RETURNING email,username;
 ```
 
 * ### update the whole column
@@ -189,11 +186,13 @@ WHERE username = 'jane' RETURNING email,username;
   will update the whole column for price, increase it by 10% on each product
 
 ```sql
-UPDATE products
-SET price = price * 1.10;
+UPDATE order_items
+SET price = price * 1.10 RETURNING *;
 ```
 
 * ### update depending on another table
+
+Trying to update order_items price, based on categories table discount.
 
 ```sql
 UPDATE order_items oi
@@ -215,13 +214,6 @@ DELETE FROM users
 WHERE user_id = 5;
 ```
 
-* ### delete multiple rows match condition
-  
-```sql
-DELETE FROM users
-WHERE active = FALSE;
-  ```
-
 * ### delete using join (using keyword)
 
 delete orders where user not active
@@ -230,18 +222,25 @@ delete orders where user not active
 DELETE FROM orders o
 USING users u
 WHERE o.user_id = u.user_id
-  AND u.active = FALSE;
+  AND u.active = FALSE RETURNING *;
 ```
+
+* ### delete multiple rows match condition
+  
+```sql
+DELETE FROM users
+WHERE active = FALSE;
+  ```
 
 * ### returning clause (delete version)
   
 ```sql
 --whole row
 DELETE FROM users
-WHERE active = FALSE RETURNING *;
+WHERE username = 'antony' RETURNING *;
 --specific columne
 DELETE FROM users
-WHERE active = FALSE RETURNING email,username;
+WHERE username = 'joy' RETURNING email,username;
   ```
 
 ## 4. UPSERT
@@ -271,7 +270,6 @@ VALUES ('phantom@duck.com', 'phantomX', FALSE)
 ON CONFLICT (email)
 DO UPDATE SET
     username = EXCLUDED.username,
-    active = EXCLUDED.active,
-    updated_at = CURRENT_TIMESTAMP
+    active = EXCLUDED.active
 RETURNING *;
 ```
