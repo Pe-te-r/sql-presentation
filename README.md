@@ -1,6 +1,6 @@
 # Modification
 
-Under this topic we study four different types of statements which are **insert**, **update**, **delete** and **upsert**
+Under this topic there four different types of statements which are **insert**, **update**, **delete** and **upsert**
 
 For you to follow along you need to create this tables in your database.
 
@@ -107,6 +107,8 @@ In this only one row is inserted.
 
 * ### Multiple row
 
+Multiple rows get inserted within one query.
+
 ```sql
  INSERT INTO users 
  SET(username,email)
@@ -116,6 +118,8 @@ In this only one row is inserted.
 ```
 
 * ### Returning clause(Insert Version)
+
+Addin returning clause at the end then specify which columns in the inserted row need to be retrived.
 
 ```sql
 --the whole row
@@ -153,6 +157,8 @@ WHERE username = 'phantom';
 ```
 
 * ### Update multiple columns
+
+Update multiple columns in a row.
   
 ```sql
 UPDATE users
@@ -162,6 +168,8 @@ WHERE username = 'jane';
 ```
 
 * ### Returning clause(update version)
+
+Used to return columns updates within a row. It can be the whole row or specified columns.
 
 ```sql
 --the whole row
