@@ -273,3 +273,5 @@ DO UPDATE SET
     active = EXCLUDED.active
 RETURNING *;
 ```
+
+prepared by *Sheilla Mungai* and *Peter Wahu*
